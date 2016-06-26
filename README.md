@@ -18,3 +18,9 @@ I like to change color theme, but it is often frustrating experience as differen
   - [X] Flycheck
   - [X] Magit
   - [X] EShell
+
+### Screenshots
+Gruvbox dark:
+![gruvbox dark](/imgs/gruvbox-dark.png "gruvbox dark")
+Gruvbox light:
+![gruvbox light](/imgs/gruvbox-light.png "gruvbox light")
