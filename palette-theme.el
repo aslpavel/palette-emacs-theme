@@ -1,13 +1,18 @@
 ;;; palette-theme.el --- palette theme -*- lexical-binding: t -*-
 
+;; Author: Pavel Aslanov <asl.pavel@gmail.com>
+;; URL: https://github.com/aslpavel/palette-emacs-theme
+;; Version: 0.0.1
+;; Package-Requires: ((emacs "24.1"))
+;; Keywords: theme
+
 ;;; Commentary:
 
-;; Theme that can be applied to any color pallet
-;; Note: Use `list-faces-display' to find face name
+;; Color palette based Emacs theme.  Can be easily extended to support more color palettes.
+;; Comes with gruvbox-{dark,light} included.  Please read README.md for details.
 
 ;;; Code:
 (require 'cl)
-(require 'color)
 (eval-when-compile (require 'rx))
 
 (deftheme palette "palette color theme")
