@@ -19,6 +19,12 @@ I like to change color theme, but it is often frustrating experience as differen
   - [X] Magit
   - [X] EShell
 
+### Usage
+```emacs-list
+(load-theme 'palette t)
+```
+You can setup pressets which you can cycle over by setting `palette-pressets` custom property. And use interactive `palette-presset-cycle` function to switch between pressets.
+
 ### Screenshots
 Gruvbox dark:
 ![gruvbox dark](/imgs/gruvbox-dark.png "gruvbox dark")
