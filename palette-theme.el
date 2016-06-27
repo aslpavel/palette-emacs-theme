@@ -113,10 +113,10 @@
   :group 'palette-theme)
 
 ;;;###autoload
-(defcustom palette-pressets
+(defcustom palette-presets
   '((gruvbox-dark :soft purple-bold)
     (gruvbox-light :normal orange-bold))
-  "Palette pressets which will be rotated with `palette-presset-cycle'."
+  "Palette presets which will be rotated with `palette-preset-cycle'."
   :type '(alist :key-type symbol
                 :value-type (group (radio (const :tag "Hard" :hard)
                                           (const :tag "Normal" :normal)
@@ -124,27 +124,30 @@
                                    symbol))
   :group 'palette-theme)
 
-(defvar palette-presset-index 0
-  "Current palette theme presset.")
+(defvar palette-preset-index 0
+  "Current palette theme preset.")
 
 ;;;###autoload
-(defun palette-presset-cycle ()
-  "Cycle throught `palette-pressets'."
+(defun palette-preset-cycle ()
+  "Cycle throught `palette-presets'."
   (interactive)
-  (let* ((index (% palette-presset-index (length palette-pressets)))
-         (presset (nth index palette-pressets))
-         (colors (cdr (assoc (car presset) palette-colors)))
-         (options (cdr presset))
+  (let* ((index (% palette-preset-index (length palette-presets)))
+         (preset (nth index palette-presets))
+         (colors (cdr (assoc (car preset) palette-colors)))
+         (options (cdr preset))
          )
-    (setq palette-presset-index (+ 1 index))
-    (if colors
-        (progn (apply 'palette-theme-update colors options)
-               presset))
+    (setq palette-preset-index (+ 1 index))
+    (when colors
+      (apply 'palette-theme-update colors options)
+      preset)
     ))
 
 (defun palette-color-blend (base-color mix-color mix-alpha)
   "Blends BASE-COLOR under MIX-COLOR with MIX-ALPHA."
   (let* ((blend (lambda (base mix) (+ (* mix mix-alpha) (* base (- 1 mix-alpha)))))
+         ;; Built-in `color-name-to-rgb' tries to map color to closest color
+         ;; from available color set, becuase it happens before blending,
+         ;; it causes color distortion on tty
          (color-parse (lambda (color)
                         (if (string-match (rx (: bos "#"
                                                  (group hex hex)
@@ -487,20 +490,21 @@ PRIME   : one color-name from COLORS"
             (eshell-ls-missing :foreground ,yellow)
             ))
          )
-    (progn
-      (apply 'custom-theme-set-variables
+    (apply 'custom-theme-set-variables
              'palette
              (mapcar (lambda (var) `(,@var t)) vars))
-      (apply 'custom-theme-set-faces
-             'palette
-             (mapcar (lambda (face)
-                       `(,(car face) ((t ,@(cdr face))) t))
-                     faces)))))
+    (apply 'custom-theme-set-faces
+           'palette
+           (mapcar (lambda (face)
+                     `(,(car face) ((t ,@(cdr face))) t))
+                   faces))
+    ))
 
-(if palette-pressets
-    ;; update palette them with first presset
-    (progn (setq palette-presset-index 0)
-           (palette-presset-cycle)))
+(when palette-presets
+  ;; update palette them with first preset
+  (setq palette-preset-index 0)
+  (palette-preset-cycle)
+  )
 
 (provide-theme 'palette)
 ;;; palette-theme.el ends here
