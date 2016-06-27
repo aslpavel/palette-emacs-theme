@@ -6,19 +6,23 @@ I like to change color theme, but it is often frustrating experience as differen
 
 #### Features
  - Easy switching between palettes `palette-preset-cycle`
- - Add new color with ease, by specifying only 16 colors to `palette-colors`
+ - Add new color with ease, by specifying only 16 colors in `palette-colors`
  - Uses blended colors to extend palette
 
 #### Color palettes
  - [gruvbox](https://github.com/morhetz/gruvbox) dark and light
 
 #### Supported packages
-  - [X] Fontlock faces
-  - [X] Swiper/Avy/Counsel
-  - [X] Company
-  - [X] Flycheck
-  - [X] Magit
-  - [X] EShell
+  - [X] fontlock faces
+  - [X] swiper/avy/counsel
+  - [X] company
+  - [X] flycheck
+  - [X] magit
+  - [X] eshell
+  - [X] dired
+  - [X] raindow delimiters
+  - [X] diff
+  - [X] js2-mode
 
 ### Usage
 ```emacs-lisp
