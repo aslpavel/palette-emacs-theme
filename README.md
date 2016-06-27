@@ -5,7 +5,7 @@ Color palette based emacs theme
 I like to change color theme, but it is often frustrating experience as different themes support different packages (faces). And after you switched to different color palette you need manually update all the faces that are not supported by this particular theme.
 
 #### Features
- - Easy switching between palettes `palette-presset-cycle`
+ - Easy switching between palettes `palette-preset-cycle`
  - Add new color with ease, by specifying only 16 colors to `palette-colors`
  - Uses blended colors to extend palette
 
@@ -24,7 +24,7 @@ I like to change color theme, but it is often frustrating experience as differen
 ```emacs-lisp
 (load-theme 'palette t)
 ```
-You can setup pressets which you can cycle over by setting `palette-pressets` custom property. And use interactive `palette-presset-cycle` function to switch between pressets.
+You can setup presets which you can cycle over by setting `palette-presets` custom property. And use interactive `palette-preset-cycle` function to switch between presets.
 
 ### Contributions
 If you don't have favourite package supported, feel free to create pull request. 
