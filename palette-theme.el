@@ -2,6 +2,7 @@
 
 ;; Author: Pavel Aslanov <asl.pavel@gmail.com>
 ;; URL: https://github.com/aslpavel/palette-emacs-theme
+;; License: MIT
 ;; Version: 0.0.1
 ;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: theme
