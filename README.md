@@ -23,6 +23,7 @@ I like to change color theme, but it is often frustrating experience as differen
   - [X] raindow delimiters
   - [X] diff
   - [X] js2-mode
+  - [X] highlight-symbol
 
 ### Usage
 ```emacs-lisp
@@ -31,7 +32,7 @@ I like to change color theme, but it is often frustrating experience as differen
 You can setup presets which you can cycle over by setting `palette-presets` custom property. And use interactive `palette-preset-cycle` function to switch between presets.
 
 ### Contributions
-If you don't have favourite package supported, feel free to create pull request. 
+If you don't have your favourite package supported, feel free to create pull request. 
 
 ### Screenshots
 Gruvbox dark:
