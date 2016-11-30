@@ -13,17 +13,19 @@ I like to change color theme, but it is often frustrating experience as differen
  - [gruvbox](https://github.com/morhetz/gruvbox) dark and light
 
 #### Supported packages
-  - [X] fontlock faces
-  - [X] swiper/avy/counsel
   - [X] company
-  - [X] flycheck
-  - [X] magit
-  - [X] eshell
-  - [X] dired
-  - [X] raindow delimiters
   - [X] diff
-  - [X] js2-mode
+  - [X] dired
+  - [X] ediff
+  - [X] eshell
+  - [X] fic
+  - [X] flycheck
+  - [X] fontlock faces
   - [X] highlight-symbol
+  - [X] js2-mode
+  - [X] magit
+  - [X] raindow delimiters
+  - [X] swiper/avy/counsel
 
 ### Usage
 ```emacs-lisp

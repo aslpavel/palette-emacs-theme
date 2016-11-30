@@ -281,6 +281,7 @@ PRIME   : one color-name from COLORS"
             (linum                        :background ,bg+1 :foreground ,fg-bold)
             (hl-line                      :background ,bg+1)
             (linum-highlight-face         :inherit default :background ,prime :foreground ,bg)
+
             ;; highlighting
             (highlight-symbol-face :background ,(funcall bl bg prime 0.4) :foreground ,fg-1)
             (region                :background ,bg+2)
@@ -289,6 +290,8 @@ PRIME   : one color-name from COLORS"
             (secondary-selection   :background ,bg+1)
             (show-paren-match      :background ,(funcall bl bg green 0.5))
             (show-paren-mismatch   :inherit error)
+            (fic-face :background ,(funcall bl bg red 0.2) :foreground ,red-bold :bold t)
+            (fic-author-face :foreground ,orange-bold :underline t)
 
             ;; isearch
             (isearch :background ,(funcall bl bg prime 0.8) :foreground ,bg)
@@ -324,6 +327,27 @@ PRIME   : one color-name from COLORS"
             (diff-indicator-changed      :inherit diff-changed)
             (diff-indicator-added        :inherit diff-added)
             (diff-indicator-removed      :inherit diff-removed)
+
+            ;; ediff
+            (ediff-current-diff-A :background ,(funcall bl bg red-bold 0.35))
+            (ediff-fine-diff-A :background ,(funcall bl bg red-bold 0.6))
+            (ediff-even-diff-A :background ,(funcall bl bg red-bold 0.2))
+            (ediff-odd-diff-A :inherit ediff-even-diff-A)
+
+            (ediff-current-diff-B :background ,(funcall bl bg green 0.35))
+            (ediff-fine-diff-B :background ,(funcall bl bg green 0.6))
+            (ediff-even-diff-B :background ,(funcall bl bg green-bold 0.2))
+            (ediff-odd-diff-B :inherit ediff-even-diff-B)
+
+            (ediff-current-diff-C :background ,(funcall bl bg purple 0.35))
+            (ediff-fine-diff-C :background ,(funcall bl bg purple 0.6))
+            (ediff-even-diff-C :background ,(funcall bl bg purple 0.2))
+            (ediff-odd-diff-C :inherit ediff-even-diff-C)
+
+            (ediff-current-diff-Ancestor :background ,(funcall bl bg blue 0.35))
+            (ediff-fine-diff-Ancestor :background ,(funcall bl bg blue 0.6))
+            (ediff-even-diff-Ancestor :background ,(funcall bl bg blue 0.2))
+            (ediff-odd-diff-Ancestor :inherit ediff-even-diff-Ancestor)
 
             ;; company
             (company-tooltip                  :background ,bg+2 :foreground ,fg)
@@ -501,11 +525,14 @@ PRIME   : one color-name from COLORS"
                    faces))
     ))
 
-(when palette-presets
-  ;; update palette them with first preset
-  (setq palette-preset-index 0)
-  (palette-preset-cycle)
-  )
+(defun palette-preset-reset ()
+    "Reset palette preset."
+    (when palette-presets
+      ;; update palette them with first preset
+      (setq palette-preset-index 0)
+      (palette-preset-cycle)
+      ))
+(palette-preset-reset)
 
 (provide-theme 'palette)
 ;;; palette-theme.el ends here
