@@ -1,4 +1,4 @@
-;;; palette-theme.el --- palette theme -*- lexical-binding: t -*-
+;;; palette-theme-lib.el --- palette theme -*- lexical-binding: t -*-
 
 ;; Author: Pavel Aslanov <asl.pavel@gmail.com>
 ;; URL: https://github.com/aslpavel/palette-emacs-theme
@@ -13,177 +13,51 @@
 ;; Comes with gruvbox-{dark,light} included.  Please read README.md for details.
 
 ;;; Code:
-(require 'cl)
-(eval-when-compile (require 'rx))
+(eval-when-compile
+  (require 'cl)
+  (require 'rx))
 
-(deftheme palette "palette color theme")
-
-;; needs to be autoload (to be accessable in defcustom)
-;;;###autoload
-(defconst palette-colors-init
-  '((gruvbox-dark . ((bg-hard     . "#1d2021")
-                     (bg          . "#282828")
-                     (bg-soft     . "#32302f")
-                     (bg+1        . "#3c3836")
-                     (bg+2        . "#504945")
-                     (bg+3        . "#665c54")
-                     (bg+4        . "#7c6f64")
-                     (bg-bold     . "#928374")
-
-                     (fg-bold     . "#a89984")
-                     (fg+2        . "#bdae93")
-                     (fg+1        . "#d5c4a1")
-                     (fg          . "#ebdbb2")
-                     (fg-1        . "#fbf1c7")
-
-                     (red         . "#cc241d")
-                     (red-bold    . "#fb4934")
-                     (green       . "#98971a")
-                     (green-bold  . "#b8bb26")
-                     (yellow      . "#d79921")
-                     (yellow-bold . "#fabd2f")
-                     (blue        . "#458588")
-                     (blue-bold   . "#83a598")
-                     (purple      . "#b16286")
-                     (purple-bold . "#d3869b")
-                     (aqua        . "#689d6a")
-                     (aqua-bold   . "#8ec07c")
-                     (orange      . "#d65d0e")
-                     (orange-bold . "#fe8019")))
-    (gruvbox-light . ((bg-hard     . "#f9f5d7")
-                      (bg          . "#fbf1c7")
-                      (bg-soft     . "#f2e5bc")
-                      (bg+1        . "#ebdbb2")
-                      (bg+2        . "#d5c4a1")
-                      (bg+3        . "#bdae93")
-                      (bg+4        . "#a89984")
-                      (bg-bold     . "#928374")
-
-                      (fg-bold     . "#7c6f64")
-                      (fg+2        . "#665c54")
-                      (fg+1        . "#504945")
-                      (fg          . "#3c3836")
-                      (fg-1        . "#282828")
-
-                      (red         . "#cc241d")
-                      (red-bold    . "#9d0006")
-                      (green       . "#98971a")
-                      (green-bold  . "#79740e")
-                      (yellow      . "#d79921")
-                      (yellow-bold . "#b57614")
-                      (blue        . "#458588")
-                      (blue-bold   . "#076678")
-                      (purple      . "#b16286")
-                      (purple-bold . "#8f3f71")
-                      (aqua        . "#689d6a")
-                      (aqua-bold   . "#427b58")
-                      (orange      . "#d65d0e")
-                      (orange-bold . "#af3a03")
-                      ))
-    (satori . ((bg . "#3f3f4c")
-               (bg-bold . "#525263")
-               (fg . "#edeff2")
-               (fg-bold . "#cccaca")
-               (red . "#ac6a76")
-               (red-bold . "#c47987")
-               (green . "#7b8c58")
-               (green-bold . "#90a366")
-               (yellow . "#bc945a")
-               (yellow-bold . "#d4a765")
-               (blue . "#58698c")
-               (blue-bold . "#7086b2")
-               (purple . "#7b5e8d")
-               (purple-bold . "#9572ab")
-               (aqua . "#82a1b2")
-               (aqua-bold . "#95b9cc")
-               ))
-    ))
+(eval-and-compile
+  (defun palette-color-blend (base-color mix-color mix-alpha)
+    "Blends BASE-COLOR under MIX-COLOR with MIX-ALPHA."
+    (let* ((blend (lambda (base mix) (+ (* mix mix-alpha) (* base (- 1 mix-alpha)))))
+           ;; Built-in `color-name-to-rgb' tries to map color to closest color
+           ;; from available color set, becuase it happens before blending,
+           ;; it causes color distortion on tty
+           (color-parse (lambda (color)
+                          (if (string-match (rx (: bos "#"
+                                                   (group hex hex)
+                                                   (group hex hex)
+                                                   (group hex hex)
+                                                   eos)) color)
+                              (mapcar (lambda (v) (/ (string-to-number v 16) 255.0))
+                                      (list (match-string 1 color)
+                                            (match-string 2 color)
+                                            (match-string 3 color)))
+                            (color-name-to-rgb color))))
+           (color-to-string (lambda (rgb) (apply 'format "#%02x%02x%02x"
+                                            (mapcar (lambda (c) (* c 255)) rgb))))
+           (base-rgb (funcall color-parse base-color))
+           (mix-rgb  (funcall color-parse mix-color)))
+      (if (and base-rgb mix-rgb)
+          (funcall color-to-string
+                   (list (funcall blend (nth 0 base-rgb) (nth 0 mix-rgb))
+                         (funcall blend (nth 1 base-rgb) (nth 1 mix-rgb))
+                         (funcall blend (nth 2 base-rgb) (nth 2 mix-rgb)))))
+      ))
+  )
 
 ;;;###autoload
-(defgroup palette-theme nil
-  "Base theme options."
-  :group 'faces)
+(defmacro palette-theme-gen (name colors &optional contrast prime)
+  "Generate palette theme with NAME from COLORS, with optional CONTRAST, and PRIME color.
 
-;;;###autoload
-(defcustom palette-colors
-  palette-colors-init
-  "Base theme pallet as assoc list."
-  :type '(alist :key-type symbol
-                :value-type (alist :key-type symbol
-                                   :value-type color))
-  :group 'palette-theme)
-
-;;;###autoload
-(defcustom palette-presets
-  '((gruvbox-dark :soft purple-bold)
-    (gruvbox-light :normal orange-bold))
-  "Palette presets which will be rotated with `palette-preset-cycle'."
-  :type '(alist :key-type symbol
-                :value-type (group (radio (const :tag "Hard" :hard)
-                                          (const :tag "Normal" :normal)
-                                          (const :tag "Soft" :soft))
-                                   symbol))
-  :group 'palette-theme)
-
-(defvar palette-preset-index 0
-  "Current palette theme preset.")
-
-;;;###autoload
-(defun palette-preset-cycle ()
-  "Cycle throught `palette-presets'."
-  (interactive)
-  (let* ((index (% palette-preset-index (length palette-presets)))
-         (preset (nth index palette-presets))
-         (colors (cdr (assoc (car preset) palette-colors)))
-         (options (cdr preset))
-         )
-    (setq palette-preset-index (+ 1 index))
-    (when colors
-      (apply 'palette-theme-update colors options)
-      preset)
-    ))
-
-(defun palette-color-blend (base-color mix-color mix-alpha)
-  "Blends BASE-COLOR under MIX-COLOR with MIX-ALPHA."
-  (let* ((blend (lambda (base mix) (+ (* mix mix-alpha) (* base (- 1 mix-alpha)))))
-         ;; Built-in `color-name-to-rgb' tries to map color to closest color
-         ;; from available color set, becuase it happens before blending,
-         ;; it causes color distortion on tty
-         (color-parse (lambda (color)
-                        (if (string-match (rx (: bos "#"
-                                                 (group hex hex)
-                                                 (group hex hex)
-                                                 (group hex hex)
-                                                 eos)) color)
-                            (mapcar (lambda (v) (/ (string-to-number v 16) 255.0))
-                                    (list (match-string 1 color)
-                                          (match-string 2 color)
-                                          (match-string 3 color)))
-                          (color-name-to-rgb color))))
-         (color-to-string (lambda (rgb) (apply 'format "#%02x%02x%02x"
-                                          (mapcar (lambda (c) (* c 255)) rgb))))
-         (base-rgb (funcall color-parse base-color))
-         (mix-rgb  (funcall color-parse mix-color)))
-    (if (and base-rgb mix-rgb)
-        (funcall color-to-string
-                 (list (funcall blend (nth 0 base-rgb) (nth 0 mix-rgb))
-                       (funcall blend (nth 1 base-rgb) (nth 1 mix-rgb))
-                       (funcall blend (nth 2 base-rgb) (nth 2 mix-rgb)))))
-    ))
-
-;;;###autoload
-(defun palette-theme-update (colors &optional contrast prime)
-  "Update palette theme from COLORS, with optional CONTRAST, and PRIME color.
-
-COLORS  : ((color-name . color) ...)|palette-symbol
-CONTRAST: (:hard|:normal|:soft)
-PRIME   : one color-name from COLORS"
-  (let* (;; bind colors
+NAME     : deftheme symbol name
+COLORS   : ((color-name . color) ...)
+CONTRAST : (:hard|:normal|:soft)
+PRIME    : one color-name from COLORS"
+  (let* ( ;; bind colors
          (bl          (lambda (b m a) (palette-color-blend b m a)))
-         (color       (let ((colors-map (if (symbolp colors)
-                                            (cdr (assoc colors palette-colors))
-                                          colors)))
-                        (lambda (name) (cdr (assq name colors-map)))))
+         (color       (lambda (name) (cdr (assq name colors))))
 
          ;; background
          (bg          (or (funcall color (cdr (assq contrast '((:normal . bg)
@@ -219,23 +93,21 @@ PRIME   : one color-name from COLORS"
          (orange      (or (funcall color 'orange) (funcall color 'yellow)))
          (orange-bold (or (funcall color 'orange-bold) (funcall color 'yellow-bold)))
          (prime       (or (funcall color prime) orange-bold))
-         (highlights  (remove-if (apply-partially 'eq prime)
-                                 (mapcar color '(purple-bold
-                                                 blue-bold
-                                                 aqua-bold
-                                                 orange-bold
-                                                 yellow-bold
-                                                 green-bold))))
+         (highlights  (remove-if
+                       (apply-partially 'eq prime)
+                       (mapcar color '(purple-bold blue-bold aqua-bold orange-bold yellow-bold green-bold))))
+
          ;; theme variables
          (vars
           `((highlight-symbol-foreground-color ,bg)
             (highlight-symbol-colors (list ,@highlights))
             (ansi-color-names-vector [,bg ,red ,green ,yellow ,blue ,purple ,aqua ,fg])
-            (avy-background t)))
+            (avy-background t)
+            ))
 
          ;; theme faces
          (faces
-          `( ;; basic faces
+          `(;; basic faces
             (default             :background ,bg :foreground ,fg)
             (cursor              :background ,fg)
             (fringe              :background ,bg+1)
@@ -259,7 +131,7 @@ PRIME   : one color-name from COLORS"
                                  :box (:line-width 1 :color ,bg+2))
             (mode-line-buffer-id :foreground ,fg-1 :bold t)
             (mode-line-highlight :background ,bg+3)
-            (powerline-inactive1 :background ,(funcall bl bg+1 prime 0.6) :foreground ,fg)
+            (powerline-inactive1 :background ,(funcall bl bg+1 prime 0.3) :foreground ,fg)
             (powerline-inactive2 :background ,bg+1 :foreground ,fg-bold)
             (powerline-active1 :background ,prime :foreground ,bg)
             (powerline-active2 :background ,bg+3 :foreground ,fg)
@@ -298,8 +170,8 @@ PRIME   : one color-name from COLORS"
             (isearch-fail :inherit error)
 
             ;; ivy
-            (ivy-current-match           :background ,bg+2 :foreground ,fg)
-            (ivy-minibuffer-match-face-1 :background ,bg+1 :foreground ,fg)
+            (ivy-current-match :background ,bg+2)
+            (ivy-minibuffer-match-face-1)
             (ivy-minibuffer-match-face-2 :background ,(funcall bl bg prime 0.8) :foreground ,bg)
             (ivy-minibuffer-match-face-3 :background ,(funcall bl bg (nth 0 highlights) 0.8) :foreground ,bg)
             (ivy-minibuffer-match-face-4 :background ,(funcall bl bg (nth 1 highlights) 0.8) :foreground ,bg)
@@ -513,26 +385,16 @@ PRIME   : one color-name from COLORS"
             (eshell-ls-backup :foreground ,bg+4)
             (eshell-ls-product :foreground ,yellow-bold)
             (eshell-ls-missing :foreground ,yellow)
+
+            ;; language server protocol mode (lsp-mode)
+            (lsp-face-highlight-read :foreground ,bg :background ,green-bold)
+            (lsp-face-highlight-write :foreground ,bg :background ,red-bold)
+            (lsp-face-highlight-textual :foreground ,bg :background ,yellow-bold)
             ))
          )
-    (apply 'custom-theme-set-variables
-             'palette
-             (mapcar (lambda (var) `(,@var t)) vars))
-    (apply 'custom-theme-set-faces
-           'palette
-           (mapcar (lambda (face)
-                     `(,(car face) ((t ,@(cdr face))) t))
-                   faces))
-    ))
+    `(progn
+       (custom-theme-set-variables ,name ,@(mapcar (lambda (var) `'(,@var t)) vars))
+       (custom-theme-set-faces ,name ,@(mapcar (lambda (face) `'(,(car face) ((t ,@(cdr face))) t)) faces)))))
 
-(defun palette-preset-reset ()
-    "Reset palette preset."
-    (when palette-presets
-      ;; update palette them with first preset
-      (setq palette-preset-index 0)
-      (palette-preset-cycle)
-      ))
-(palette-preset-reset)
-
-(provide-theme 'palette)
-;;; palette-theme.el ends here
+(provide 'palette-theme-lib)
+;;; palette-theme-lib.el ends here

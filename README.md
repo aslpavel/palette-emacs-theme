@@ -1,11 +1,7 @@
 ### Palette Emacs Theme
-Color palette based emacs theme
-
-#### Rationale
-I like to change color theme, but it is often frustrating experience as different themes support different packages (faces). And after you switched to different color palette you need manually update all the faces that are not supported by this particular theme.
+Color palette based emacs theme. You can specify small set of colors (palette) and based on it whole theme will be constructed, it would also include blended colors based on this palette.
 
 #### Features
- - Easy switching between palettes `palette-preset-cycle`
  - Add new color with ease, by specifying only 16 colors in `palette-colors`
  - Uses blended colors to extend palette
 
@@ -26,12 +22,17 @@ I like to change color theme, but it is often frustrating experience as differen
   - [X] magit
   - [X] raindow delimiters
   - [X] swiper/avy/counsel
+  - [x] lsp-mode
 
 ### Usage
 ```emacs-lisp
-(load-theme 'palette t)
+;; make sure that this directoray is is added to `custom-theme-load-path`
+(add-to-list 'custom-theme-load-path "path_to_checked_out_repository")
+;; load theme
+(load-theme 'palette-gruvbox-dark t)
+;; or
+(load-theme 'palette-gruvbox-light t)
 ```
-You can setup presets which you can cycle over by setting `palette-presets` custom property. And use interactive `palette-preset-cycle` function to switch between presets.
 
 ### Contributions
 If you don't have your favourite package supported, feel free to create pull request. 
