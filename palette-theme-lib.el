@@ -18,45 +18,82 @@
   (require 'rx))
 
 (eval-and-compile
-  (defun palette-color-blend (base-color mix-color mix-alpha)
+  (defun palette-hex-to-rgb (color)
+    "Parse from #RRGGBB COLOR
+
+Built-in `color-name-to-rgb` tries to map color closest to color from
+available color set, and causes problem on tty.
+"
+    (if (string-match (rx (: bos "#"
+                             (group hex hex)
+                             (group hex hex)
+                             (group hex hex)
+                             eos)) color)
+        (mapcar (lambda (v) (/ (string-to-number v 16) 255.0))
+                (list (match-string 1 color)
+                      (match-string 2 color)
+                      (match-string 3 color)))
+      (color-name-to-rgb color))
+    )
+
+  (defun palette-rgb-to-hex (rgb)
+    (apply 'format "#%02x%02x%02x" (mapcar (lambda (c) (* c 255)) rgb)))
+
+  (defun palette-blend (base-color mix-color mix-alpha)
     "Blends BASE-COLOR under MIX-COLOR with MIX-ALPHA."
-    (let* ((blend (lambda (base mix) (+ (* mix mix-alpha) (* base (- 1 mix-alpha)))))
-           ;; Built-in `color-name-to-rgb' tries to map color to closest color
-           ;; from available color set, becuase it happens before blending,
-           ;; it causes color distortion on tty
-           (color-parse (lambda (color)
-                          (if (string-match (rx (: bos "#"
-                                                   (group hex hex)
-                                                   (group hex hex)
-                                                   (group hex hex)
-                                                   eos)) color)
-                              (mapcar (lambda (v) (/ (string-to-number v 16) 255.0))
-                                      (list (match-string 1 color)
-                                            (match-string 2 color)
-                                            (match-string 3 color)))
-                            (color-name-to-rgb color))))
-           (color-to-string (lambda (rgb) (apply 'format "#%02x%02x%02x"
-                                            (mapcar (lambda (c) (* c 255)) rgb))))
-           (base-rgb (funcall color-parse base-color))
-           (mix-rgb  (funcall color-parse mix-color)))
+    (let ((blend (lambda (base mix) (+ (* mix mix-alpha) (* base (- 1 mix-alpha)))))
+          )
+      (list (funcall blend (nth 0 base-color) (nth 0 mix-color))
+            (funcall blend (nth 1 base-color) (nth 1 mix-color))
+            (funcall blend (nth 2 base-color) (nth 2 mix-color))
+            )
+      ))
+
+  (defun palette-blend-hex (base-color mix-color mix-alpha)
+    "Blends #RRGGBB BASE-COLOR under MIX-COLOR with MIX-ALPHA."
+    (let ((base-rgb (palette-hex-to-rgb base-color))
+          (mix-rgb  (palette-hex-to-rgb mix-color)))
       (if (and base-rgb mix-rgb)
-          (funcall color-to-string
-                   (list (funcall blend (nth 0 base-rgb) (nth 0 mix-rgb))
-                         (funcall blend (nth 1 base-rgb) (nth 1 mix-rgb))
-                         (funcall blend (nth 2 base-rgb) (nth 2 mix-rgb)))))
+          (palette-rgb-to-hex (palette-blend base-rgb mix-rgb mix-alpha)))
+      ))
+
+  (defun palette-luminance (color)
+    (+ (* .2126 (nth 0 color))
+       (* .7152 (nth 1 color))
+       (* .0722 (nth 2 color)))
+    )
+
+  (defun palette-auto-attrs (bg-hex bg-mix-hex bg-alpha fg-0-hex fg-1-hex &optional fg-alpha)
+    (let* ((bg-rgb (palette-hex-to-rgb bg-hex))
+           (bg-mix-rgb (palette-hex-to-rgb bg-mix-hex))
+           (bg-blend-rgb (palette-blend bg-rgb bg-mix-rgb bg-alpha))
+           (bg-blend-lum (palette-luminance bg-blend-rgb))
+           (bg-blend-hex (palette-rgb-to-hex bg-blend-rgb))
+           ;; create foreground pair (light-fg, dark-fg)
+           (fg-0-rgb (palette-hex-to-rgb fg-0-hex))
+           (fg-0-lum (palette-luminance fg-0-rgb))
+           (fg-1-rgb (palette-hex-to-rgb fg-1-hex))
+           (fg-1-lum (palette-luminance fg-1-rgb))
+           (fg-pair (if (> fg-0-lum fg-1-lum)
+                        (cons fg-0-rgb fg-1-rgb) (cons fg-1-rgb fg-0-rgb)))
+           (fg-rgb (if (> bg-blend-lum .5) (cdr fg-pair) (car fg-pair)))
+           (fg-blend-rgb (if fg-alpha (palette-blend bg-blend-rgb fg-rgb fg-alpha) fg-rgb))
+           (fg-blend-hex (palette-rgb-to-hex fg-blend-rgb))
+           )
+      `(:foreground ,fg-blend-hex :background ,bg-blend-hex)
       ))
   )
 
 ;;;###autoload
 (defmacro palette-theme-gen (name colors &optional contrast prime)
-  "Generate palette theme with NAME from COLORS, with optional CONTRAST, and PRIME color.
+  "Generate palette theme with NAME from COLORS, with CONTRAST, and PRIME color.
 
 NAME     : deftheme symbol name
 COLORS   : ((color-name . color) ...)
 CONTRAST : (:hard|:normal|:soft)
 PRIME    : one color-name from COLORS"
-  (let* ( ;; bind colors
-         (bl          (lambda (b m a) (palette-color-blend b m a)))
+  (let* (;; bind colors
+         (bl          (lambda (b m a) (palette-blend-hex b m a)))
          (color       (lambda (name) (cdr (assq name colors))))
 
          ;; background
@@ -96,6 +133,9 @@ PRIME    : one color-name from COLORS"
          (highlights  (remove-if
                        (apply-partially 'eq prime)
                        (mapcar color '(purple-bold blue-bold aqua-bold orange-bold yellow-bold green-bold))))
+
+         ;; auto attrs
+         (aa          (lambda (b m a &optional fa) (palette-auto-attrs b m a bg fg fa)))
 
          ;; theme variables
          (vars
@@ -155,7 +195,7 @@ PRIME    : one color-name from COLORS"
             (linum-highlight-face         :inherit default :background ,prime :foreground ,bg)
 
             ;; highlighting
-            (highlight-symbol-face :background ,(funcall bl bg prime 0.4) :foreground ,fg-1)
+            (highlight-symbol-face ,@(funcall aa bg prime 0.2))
             (region                :background ,bg+2)
             (highlight             :background ,bg+1)
             (highlight-80+         :inherit trailing-whitespace)
@@ -378,7 +418,7 @@ PRIME    : one color-name from COLORS"
             (eshell-ls-directory :inherit dired-directory)
             (eshell-ls-archive :inherit dired-directory :underline t)
             (eshell-ls-symlink :inherit dired-symlink)
-            (eshell-ls-readonly :foreground ,(funcall bl fg red-bold 0.5))
+            (eshell-ls-readonly :foreground ,(funcall bl fg red-bold 0.3))
             (eshell-ls-unreadable :foreground ,red-bold)
             (eshell-ls-special :foreground ,purple)
             (eshell-ls-clutter :foreground ,bg+4)
@@ -390,7 +430,7 @@ PRIME    : one color-name from COLORS"
             (lsp-face-highlight-read :foreground ,bg :background ,green-bold)
             (lsp-face-highlight-write :foreground ,bg :background ,red-bold)
             (lsp-face-highlight-textual :foreground ,bg :background ,yellow-bold)
-            (lsp-ui-doc-background :foreground ,fg :background ,(funcall bl bg blue 0.2))
+            (lsp-ui-doc-background ,@(funcall aa bg blue 0.2))
             (lsp-ui-sideline-symbol :foreground ,blue-bold)
             (lsp-ui-sideline-current-symbol :inherit lsp-ui-sideline-symbol :underline t)
             (lsp-ui-sideline-symbol-info :foreground ,bg+4)
