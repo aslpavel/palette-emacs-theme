@@ -390,6 +390,10 @@ PRIME    : one color-name from COLORS"
             (lsp-face-highlight-read :foreground ,bg :background ,green-bold)
             (lsp-face-highlight-write :foreground ,bg :background ,red-bold)
             (lsp-face-highlight-textual :foreground ,bg :background ,yellow-bold)
+            (lsp-ui-doc-background :foreground ,fg :background ,(funcall bl bg blue 0.2))
+            (lsp-ui-sideline-symbol :foreground ,blue-bold)
+            (lsp-ui-sideline-current-symbol :inherit lsp-ui-sideline-symbol :underline t)
+            (lsp-ui-sideline-symbol-info :foreground ,bg+4)
             ))
          )
     `(progn
