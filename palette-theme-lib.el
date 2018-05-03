@@ -424,9 +424,9 @@ PRIME    : one color-name from COLORS"
             (eshell-ls-missing :foreground ,yellow)
 
             ;; language server protocol mode (lsp-mode)
-            (lsp-face-highlight-read :foreground ,bg :background ,green-bold)
-            (lsp-face-highlight-write :foreground ,bg :background ,red-bold)
-            (lsp-face-highlight-textual :foreground ,bg :background ,yellow-bold)
+            (lsp-face-highlight-read ,@(funcall aa bg yellow-bold 0.4))
+            (lsp-face-highlight-write ,@(funcall aa bg red-bold 0.4))
+            (lsp-face-highlight-textual ,@(funcall aa bg prime 0.4))
             (lsp-ui-doc-background ,@(funcall aa bg blue 0.2))
             (lsp-ui-sideline-symbol :foreground ,blue-bold)
             (lsp-ui-sideline-current-symbol :inherit lsp-ui-sideline-symbol :underline t)
