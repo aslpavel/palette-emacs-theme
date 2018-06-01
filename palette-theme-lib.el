@@ -190,6 +190,8 @@ PRIME    : one color-name from COLORS"
             (linum                        :background ,bg+1 :foreground ,fg-bold)
             (hl-line                      :background ,bg+1)
             (linum-highlight-face         :inherit default :background ,prime :foreground ,bg)
+            (line-number :background ,bg+1 :foreground ,fg-bold)
+            (line-number-current-line :inherit default :background ,prime :foreground ,bg)
 
             ;; highlighting
             (highlight-symbol-face ,@(funcall aa bg prime 0.2))
