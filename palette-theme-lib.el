@@ -137,10 +137,10 @@ PRIME    : one color-name from COLORS"
          ;; theme variables
          (vars
           `((highlight-symbol-foreground-color ,bg)
-            (highlight-symbol-colors (list ,@highlights))
+            (highlight-symbol-colors (list ,@(mapcar (lambda (c) (funcall bl bg c 0.4)) highlights)))
+            (highlight-symbol-foreground-color ,fg)
             (ansi-color-names-vector [,bg ,red ,green ,yellow ,blue ,purple ,aqua ,fg])
-            (avy-background t)
-            ))
+            (avy-background t)))
 
          ;; theme faces
          (faces
