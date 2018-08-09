@@ -120,16 +120,22 @@ PRIME    : one color-name from COLORS"
          (yellow-bold (funcall color 'yellow-bold))
          (blue        (funcall color 'blue))
          (blue-bold   (funcall color 'blue-bold))
-         (purple      (or (funcall color 'purple) (funcall color 'magenta)))
-         (purple-bold (or (funcall color 'purple-bold) (funcall color 'magenta-bold)))
-         (aqua        (or (funcall color 'aqua) (funcall color 'cyan)))
-         (aqua-bold   (or (funcall color 'aqua-bold) (funcall color 'cyan-bold)))
-         (orange      (or (funcall color 'orange) (funcall color 'yellow)))
-         (orange-bold (or (funcall color 'orange-bold) (funcall color 'yellow-bold)))
+         (purple      (or (funcall color 'purple)
+                          (funcall color 'magenta)))
+         (purple-bold (or (funcall color 'purple-bold)
+                          (funcall color 'magenta-bold)))
+         (aqua        (or (funcall color 'aqua)
+                          (funcall color 'cyan)))
+         (aqua-bold   (or (funcall color 'aqua-bold)
+                          (funcall color 'cyan-bold)))
+         (orange      (or (funcall color 'orange)
+                          (funcall color 'yellow)))
+         (orange-bold (or (funcall color 'orange-bold)
+                          (funcall color 'yellow-bold)))
          (prime       (or (funcall color prime) orange-bold))
          (highlights  (remove-if
                        (apply-partially 'eq prime)
-                       (mapcar color '(purple-bold blue-bold aqua-bold orange-bold yellow-bold green-bold))))
+                       (list purple-bold blue-bold aqua-bold orange-bold yellow-bold green-bold)))
 
          ;; auto attrs
          (aa          (lambda (b m a &optional fa) (palette-auto-attrs b m a bg fg fa)))
@@ -137,7 +143,7 @@ PRIME    : one color-name from COLORS"
          ;; theme variables
          (vars
           `((highlight-symbol-foreground-color ,bg)
-            (highlight-symbol-colors (list ,@(mapcar (lambda (c) (funcall bl bg c 0.4)) highlights)))
+            (highlight-symbol-colors (list ,@(mapcar (lambda (c) (funcall bl bg c 0.35)) highlights)))
             (highlight-symbol-foreground-color ,fg)
             (ansi-color-names-vector [,bg ,red ,green ,yellow ,blue ,purple ,aqua ,fg])
             (avy-background t)))
