@@ -64,6 +64,15 @@ available color set, and causes problem on tty.
     )
 
   (defun palette-auto-attrs (bg-hex bg-mix-hex bg-alpha fg-0-hex fg-1-hex &optional fg-alpha)
+    "Create face with BG-MIX-HEX background with specified BG-ALPHA layered on top of BG-HEX.
+     Foreground is picked from either FG-0-HEX or FG-1-HEX to result in best contrast.
+
+BG-HEX: base background color
+BG-MIX-HEX: background color layerd on top of BG-HEX
+BG-ALPHA: alpha of BG-MIX-HEX
+FG-{0|1}-HEX: alternative foreground colors
+FG-ALPHA: optional foreground alpha
+"
     (let* ((bg (palette-blend (palette-hex-to-rgb bg-hex)
                               (palette-hex-to-rgb bg-mix-hex)
                               bg-alpha))
