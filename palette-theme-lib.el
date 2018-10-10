@@ -14,7 +14,7 @@
 
 ;;; Code:
 (eval-when-compile
-  (require 'cl)
+  (require 'cl-lib)
   (require 'rx))
 
 (eval-and-compile
@@ -133,7 +133,7 @@ PRIME    : one color-name from COLORS"
          (orange-bold (or (funcall color 'orange-bold)
                           (funcall color 'yellow-bold)))
          (prime       (or (funcall color prime) orange-bold))
-         (highlights  (remove-if
+         (highlights  (cl-remove-if
                        (apply-partially 'eq prime)
                        (list purple-bold blue-bold aqua-bold orange-bold yellow-bold green-bold)))
 
@@ -416,6 +416,9 @@ PRIME    : one color-name from COLORS"
             (js2-object-property :inherit default)
             (Js2-private-function-call :foreground ,orange-bold)
             (js2-private-member :foreground ,purple)
+
+            ;; thrift
+            (thrift-ordinal-face :bold t :foreground ,yellow)
 
             ;; eshell
             (eshell-prompt :foreground ,prime :bold t)
