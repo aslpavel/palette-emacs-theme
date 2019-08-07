@@ -43,7 +43,7 @@
   (aqua-bold   . "#8ec07c")
   (orange      . "#d65d0e")
   (orange-bold . "#fe8019"))
- :soft
+ :normal
  aqua-bold
  )
 
