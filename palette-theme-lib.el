@@ -19,25 +19,33 @@
 
 (eval-and-compile
   (defun palette-hex-to-rgb (color)
-    "Parse from #RRGGBB COLOR
+    "Parse from hex sRGB COLOR into linear RGB space
 
 Built-in `color-name-to-rgb` tries to map color closest to color from
 available color set, and causes problem on tty.
 "
-    (if (string-match (rx (: bos "#"
-                             (group hex hex)
-                             (group hex hex)
-                             (group hex hex)
-                             eos)) color)
-        (mapcar (lambda (v) (/ (string-to-number v 16) 255.0))
-                (list (match-string 1 color)
-                      (match-string 2 color)
-                      (match-string 3 color)))
-      (color-name-to-rgb color))
-    )
+    (let ((srgb (if (string-match (rx (: bos "#"
+                                         (group hex hex)
+                                         (group hex hex)
+                                         (group hex hex)
+                                         eos)) color)
+                    (mapcar (lambda (c) (/ (string-to-number c 16) 255.0))
+                            (list (match-string 1 color)
+                                  (match-string 2 color)
+                                  (match-string 3 color)))
+                  (color-name-to-rgb color))))
+      (mapcar (lambda (c) (if (<= c 0.04045)
+                              (/ c 12.95)
+                            (expt (/ (+ c 0.055) 1.055) 2.4)))
+              srgb)
+      ))
 
-  (defun palette-rgb-to-hex (rgb)
-    (apply 'format "#%02x%02x%02x" (mapcar (lambda (c) (* c 255)) rgb)))
+  (defun palette-rgb-to-hex (srgb)
+    (apply 'format "#%02x%02x%02x"
+           (mapcar (lambda (c) (round (* (if (<= c 0.0031308)
+                                             (* 12.92 c)
+                                           (- (* 1.055 (expt c (/ 2.4))) 0.055)) 255)))
+                   srgb)))
 
   (defun palette-blend (base-color mix-color mix-alpha)
     "Blends BASE-COLOR under MIX-COLOR with MIX-ALPHA."
@@ -87,8 +95,7 @@ FG-ALPHA: optional foreground alpha
            )
       (list :foreground (palette-rgb-to-hex fg)
             :background (palette-rgb-to-hex bg))
-      ))
-  )
+      )))
 
 ;;;###autoload
 (defmacro palette-theme-gen (name colors &optional contrast prime)
