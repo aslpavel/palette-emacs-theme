@@ -262,24 +262,24 @@ PRIME    : one color-name from COLORS"
             (diff-indicator-removed      :inherit diff-removed)
 
             ;; ediff
-            (ediff-current-diff-A :background ,(funcall bl bg red-bold 0.35))
-            (ediff-fine-diff-A :background ,(funcall bl bg red-bold 0.6))
-            (ediff-even-diff-A :background ,(funcall bl bg red-bold 0.2))
+            (ediff-current-diff-A :background ,(funcall bl bg red-bold 0.24))
+            (ediff-fine-diff-A :background ,(funcall bl bg red-bold 0.4))
+            (ediff-even-diff-A :background ,(funcall bl bg red-bold 0.1))
             (ediff-odd-diff-A :inherit ediff-even-diff-A)
 
-            (ediff-current-diff-B :background ,(funcall bl bg green 0.35))
-            (ediff-fine-diff-B :background ,(funcall bl bg green 0.6))
-            (ediff-even-diff-B :background ,(funcall bl bg green-bold 0.2))
+            (ediff-current-diff-B :background ,(funcall bl bg green 0.25))
+            (ediff-fine-diff-B :background ,(funcall bl bg green 0.4))
+            (ediff-even-diff-B :background ,(funcall bl bg green-bold 0.1))
             (ediff-odd-diff-B :inherit ediff-even-diff-B)
 
-            (ediff-current-diff-C :background ,(funcall bl bg purple 0.35))
-            (ediff-fine-diff-C :background ,(funcall bl bg purple 0.6))
-            (ediff-even-diff-C :background ,(funcall bl bg purple 0.2))
+            (ediff-current-diff-C :background ,(funcall bl bg purple 0.25))
+            (ediff-fine-diff-C :background ,(funcall bl bg purple 0.4))
+            (ediff-even-diff-C :background ,(funcall bl bg purple 0.1))
             (ediff-odd-diff-C :inherit ediff-even-diff-C)
 
-            (ediff-current-diff-Ancestor :background ,(funcall bl bg blue 0.35))
-            (ediff-fine-diff-Ancestor :background ,(funcall bl bg blue 0.6))
-            (ediff-even-diff-Ancestor :background ,(funcall bl bg blue 0.2))
+            (ediff-current-diff-Ancestor :background ,(funcall bl bg blue 0.25))
+            (ediff-fine-diff-Ancestor :background ,(funcall bl bg blue 0.4))
+            (ediff-even-diff-Ancestor :background ,(funcall bl bg blue 0.1))
             (ediff-odd-diff-Ancestor :inherit ediff-even-diff-Ancestor)
 
             ;; company
