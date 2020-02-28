@@ -198,9 +198,9 @@ PRIME    : one color-name from COLORS"
             ;; syntax
             (font-lock-builtin-face       :foreground ,aqua-bold)
             (font-lock-constant-face      :foreground ,purple-bold)
-            (font-lock-comment-face       :foreground ,bg+4)
-            (font-lock-comment-delimiter-face :foreground ,bg+3)
-            (font-lock-doc-face           :foreground ,bg-bold)
+            (font-lock-comment-face       :foreground ,bg+4 :slant italic)
+            (font-lock-comment-delimiter-face :foreground ,bg+3 :slant italic)
+            (font-lock-doc-face           :foreground ,bg-bold :slant italic)
             (font-lock-function-name-face :foreground ,yellow-bold)
             (font-lock-keyword-face       :foreground ,red-bold :bold t)
             (font-lock-string-face        :foreground ,green-bold)
